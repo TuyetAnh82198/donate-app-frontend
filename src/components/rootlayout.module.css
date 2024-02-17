@@ -1,0 +1,76 @@
+/*None*/
+@media screen and (max-width: 575.98px) {
+  .icons {
+    font-size: 0.8rem;
+    margin-right: 0.25rem;
+    margin-top: 0.3rem;
+  }
+  .iconContent {
+    font-size: 0.9rem;
+  }
+}
+/*sm*/
+@media screen and (min-width: 576px) and (max-width: 767.98px) {
+  .icons {
+    font-size: 0.9rem;
+    margin-right: 0.25rem;
+    margin-top: 0.3rem;
+  }
+  .iconContent {
+    font-size: 1rem;
+  }
+}
+/*md*/
+@media screen and (min-width: 768px) and (max-width: 991.98px) {
+  .icons {
+    font-size: 1rem;
+    margin-right: 0.25rem;
+    margin-top: 0.3rem;
+  }
+  .iconContent {
+    font-size: 1.1rem;
+  }
+}
+/*lg*/
+@media screen and (min-width: 992px) and (max-width: 1199.98px) {
+  .icons {
+    font-size: 1.2rem;
+    margin-right: 0.3rem;
+    margin-top: 0.3rem;
+  }
+  .iconContent {
+    font-size: 1.3rem;
+  }
+}
+/*xl*/
+@media screen and (min-width: 1200px) and (max-width: 1399.98px) {
+  .icons {
+    font-size: 1.2rem;
+    margin-right: 0.4rem;
+    margin-top: 0.3rem;
+  }
+  .iconContent {
+    font-size: 1.3rem;
+  }
+}
+/*xxl*/
+@media screen and (min-width: 1400px) {
+  .icons {
+    font-size: 1.2rem;
+    margin-right: 0.4rem;
+    margin-top: 0.3rem;
+  }
+  .iconContent {
+    font-size: 1.3rem;
+  }
+}
+
+.menuItems {
+  margin-top: 1rem;
+  cursor: pointer;
+  color: white;
+  text-decoration: none;
+}
+.menuItems:hover {
+  transform: scale(1.1);
+}
