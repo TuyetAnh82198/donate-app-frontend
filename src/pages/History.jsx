@@ -54,10 +54,11 @@ const History = () => {
             <thead>
               <tr>
                 <th className="col-1">#</th>
-                <th className="col-2">Id</th>
+                <th className="col-1">Id</th>
                 <th>Tên đợt quyên góp</th>
                 <th className="col-2">Số tiền</th>
-                <th className="col-1">Ngày tháng</th>
+                <th className="col-1">Trạng thái</th>
+                <th className="col-2">Đã quyên góp vào ngày</th>
                 <th className="col-2">Ghi chú</th>
               </tr>
             </thead>
@@ -70,10 +71,9 @@ const History = () => {
                   <td>
                     {(Number(donate.amount) * 1000).toLocaleString("vi-VN")}
                   </td>
+                  <td>{donate.status}</td>
                   <td>
-                    {donate.date
-                      ? format(donate.date, "dd/MM/yyyy")
-                      : "Chưa quyên góp"}
+                    {donate.date ? format(donate.date, "dd/MM/yyyy") : ""}
                   </td>
                   <td>{donate.note}</td>
                 </tr>
@@ -81,7 +81,7 @@ const History = () => {
             </tbody>
             <tfoot>
               <tr>
-                <td className="p-2" style={{ textAlign: "right" }} colSpan={6}>
+                <td className="p-2" style={{ textAlign: "right" }} colSpan={7}>
                   {`${page} out of ${totalPages} ${
                     totalPages === 1 ? "page" : "pages"
                   }`}{" "}

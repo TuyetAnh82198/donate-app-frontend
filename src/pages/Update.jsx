@@ -9,6 +9,10 @@ const Update = () => {
   const [hideCalendar, setHideCalendar] = useState(true);
   //state thông tin của đợt quyên góp muốn cập nhật
   const [donate, setDonate] = useState({});
+  //state đăng nhập của người dùng
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  //state ảnh input
+  const [image, setImage] = useState("");
 
   const imgInput = useRef();
 
@@ -17,17 +21,25 @@ const Update = () => {
 
   //hàm lấy thông tin của đợt quyên góp muốn cập nhật để hiển thị lên giao diện
   const fetchDetail = useCallback((id) => {
-    fetch(`${process.env.REACT_APP_BACKEND}/donates/detail/${id}`)
+    fetch(`${process.env.REACT_APP_BACKEND}/donates/detail/${id}`, {
+      method: "GET",
+      credentials: "include",
+    })
       .then((response) => response.json())
       .then((data) => {
         if (!data.err) {
           if (data.message === "found no") {
             navigate("/");
+          } else if (data.message === "have not been logged in yet") {
+            navigate("/login");
+            setIsLoggedIn(false);
           } else {
+            setIsLoggedIn(true);
             setDonate({
               ...data.result,
               amount: data.result.amount.toString(),
             });
+            setImage(`http://localhost:5000/${data.result.img}`);
           }
         } else {
           navigate("/server-error");
@@ -48,11 +60,11 @@ const Update = () => {
       donate.amount.trim().length === 0
     ) {
       alert("Các trường không thể để trống");
-    } else if (amountWithoutPunctuation <= 0) {
-      alert("Số tiền phải lớn hơn 0");
+    } else if (amountWithoutPunctuation < 1000000) {
+      alert("Số tiền không thể nhỏ hơn 1.000.000");
     } else if (donate.type === "Chọn hoàn cảnh quyên góp") {
       alert("Vui lòng chọn Hoàn cảnh quyên góp");
-    } else if (!imgInput.current.files[0]) {
+    } else if (!imgInput.current.files[0] && image === "") {
       alert("Vui lòng chọn ảnh cho bài đăng");
     } else {
       const formData = new FormData();
@@ -61,12 +73,19 @@ const Update = () => {
       formData.append("amount", amountWithoutPunctuation);
       formData.append("endDate", donate.endDate);
       formData.append("type", donate.type);
-      formData.append("img", imgInput.current.files[0]);
+      formData.append(
+        "img",
+        imgInput.current.files[0]
+          ? imgInput.current.files[0]
+          : image.split("/")[3]
+      );
+
       for (const entry of formData.entries()) {
-        console.log(entry);
+        // console.log(entry);
       }
       fetch(`${process.env.REACT_APP_BACKEND}/donates/update/${params.id}`, {
         method: "POST",
+        credentials: "include",
         body: formData,
       })
         .then((response) => response.json())
@@ -76,6 +95,8 @@ const Update = () => {
           } else if (data.message === "Cập nhật thành công!") {
             alert("Cập nhật thành công!");
             navigate("/");
+          } else if (data.message === "have not been logged in yet") {
+            navigate("/login");
           }
         })
         .catch((err) => console.log(err));
@@ -83,36 +104,29 @@ const Update = () => {
   };
   //hàm xử lý việc reset
   const resetHandler = () => {
-    setDonate((prevState) => {
-      return { ...prevState, title: "" };
-    });
-    setDonate((prevState) => {
-      return { ...prevState, desc: "" };
-    });
-    setDonate((prevState) => {
-      return { ...prevState, amount: "" };
-    });
-    setDonate((prevState) => {
-      return { ...prevState, endDate: new Date() };
-    });
-    setDonate((prevState) => {
-      return { ...prevState, type: "Chọn hoàn cảnh quyên góp" };
+    setDonate({
+      ...donate,
+      title: "",
+      desc: "",
+      amount: "",
+      endDate: new Date(),
+      type: "Chọn hoàn cảnh quyên góp",
     });
   };
 
   return (
     <Fragment>
-      {donate.title && (
+      {isLoggedIn && (
         <Container
           className="shadow my-5 col-6 p-3"
           style={{ backgroundColor: "white", zIndex: "5" }}
         >
-          <h4>Thêm một đợt quyên góp mới</h4>
+          <h4>Cập nhật một đợt quyên góp mới</h4>
           <Form onSubmit={submitForm} encType="multipart/form-data">
             <Form.Group className="my-3">
               <Form.Label htmlFor="title">Tiêu đề</Form.Label>
               <Form.Control
-                defaultValue={donate.title}
+                value={donate.title}
                 id="title"
                 type="text"
                 placeholder="Hỗ trợ chi phí phẫu thuật tim cho 5 em nhỏ khó khăn"
@@ -128,10 +142,10 @@ const Update = () => {
               <div className="col-5">
                 <Form.Label htmlFor="desc">Mô tả</Form.Label>
                 <Form.Control
-                  defaultValue={donate.desc}
+                  value={donate.desc}
                   id="desc"
                   as="textarea"
-                  rows={4}
+                  rows={6}
                   placeholder="Chung tay mang đến cơ hội chữa lành trái tim để giúp các em nhỏ được sống một cuộc đời đáng sống"
                   onChange={(e) =>
                     setDonate((prevState) => {
@@ -142,14 +156,43 @@ const Update = () => {
               </div>
               <div className="col-6">
                 <Form.Label htmlFor="img">Hình ảnh</Form.Label>
-                <Form.Control id="img" type="file" name="img" ref={imgInput} />
+                <div>
+                  <div>
+                    <img
+                      style={{ width: "50%", marginBottom: "0.6rem" }}
+                      src={image}
+                      alt=""
+                    />
+                  </div>
+                  <div style={{ marginTop: "0.5rem" }}>
+                    (Để trống nếu không muốn chọn ảnh mới)
+                  </div>
+                  <div>
+                    <Form.Control
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          setImage(event.target.result);
+                        };
+                        if (file) {
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      id="img"
+                      type="file"
+                      name="img"
+                      ref={imgInput}
+                    />
+                  </div>
+                </div>
               </div>
             </Form.Group>
             <Form.Group className="my-3 d-flex justify-content-between">
               <div className="col-5">
                 <Form.Label htmlFor="amount">Số tiền kêu gọi</Form.Label>
                 <Form.Control
-                  defaultValue={donate.amount}
+                  value={donate.amount}
                   id="amount"
                   type="number"
                   min="1"
@@ -224,7 +267,7 @@ const Update = () => {
                 className="border-0"
                 style={{ backgroundColor: "#ffb6af", fontWeight: "bold" }}
               >
-                Thêm
+                Cập nhật
               </Button>
             </Form.Group>
           </Form>

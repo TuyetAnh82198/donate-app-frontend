@@ -17,6 +17,7 @@ import ChangePass from "./pages/ChangePass";
 import PaymentCancel from "./pages/PaymentCancel";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import History from "./pages/History";
+import ForgotPass from "./pages/ForgotPass";
 
 function App() {
   const router = createBrowserRouter([
@@ -38,6 +39,7 @@ function App() {
         { path: "/payment-cancel", element: <PaymentCancel /> },
         { path: "/payment-success", element: <PaymentSuccess /> },
         { path: "/history", element: <History /> },
+        { path: "/forgot-pass", element: <ForgotPass /> },
       ],
     },
     { path: "/server-error", element: <Page500 /> },

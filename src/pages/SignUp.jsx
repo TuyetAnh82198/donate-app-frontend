@@ -66,33 +66,39 @@ const SignUp = () => {
 
   return (
     <div>
-      <Container className="col-6 col-md-5 col-lg-4 col-xl-3 my-3">
-        <h4>Đăng ký</h4>
-        <Form>
-          <Form.Control
-            className="my-2"
-            type="email"
-            placeholder="Email"
-            ref={emailInput}
-          />
-          {/* <Form.Control
+      {email === "" && (
+        <div>
+          <Container className="col-6 col-md-5 col-lg-4 col-xl-3 my-3">
+            <h4>Đăng ký</h4>
+            <Form>
+              <Form.Control
+                className="my-2"
+                type="email"
+                placeholder="Email"
+                ref={emailInput}
+              />
+              {/* <Form.Control
             className="my-2"
             type="password"
             placeholder="Mật khẩu"
             ref={passInput}
           /> */}
-          <Button
-            onClick={submitForm}
-            className="border-0"
-            style={{ backgroundColor: "#f28076" }}
-          >
-            Đăng ký
-          </Button>
-        </Form>
-      </Container>
-      <Container className="col-6" style={{ textAlign: "center" }}>
-        Bạn đã có tài khoản? Nhấp vào <Link to="/login">đây</Link> để đăng nhập
-      </Container>
+              <Button
+                onClick={submitForm}
+                className="border-0"
+                style={{ backgroundColor: "#f28076" }}
+              >
+                Đăng ký
+              </Button>
+            </Form>
+            <div className="my-3">
+              Hoặc đăng nhập bằng <Link to="/login">tài khoản Google.</Link> Bạn
+              đã có tài khoản? Nhấp vào <Link to="/login">đây</Link> để đăng
+              nhập
+            </div>
+          </Container>
+        </div>
+      )}
     </div>
   );
 };

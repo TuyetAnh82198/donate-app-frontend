@@ -27,9 +27,7 @@ const Detail = () => {
         if (!data.err) {
           if (data.message === "found no") {
             navigate("/");
-          } else if (data.message === "have not been logged in yet") {
-            navigate("/login");
-          } else {
+          } else if (data.result) {
             setDonate(data.result);
             // console.log(data.result);
           }
@@ -59,10 +57,13 @@ const Detail = () => {
       }
     );
     const data = await response.json();
-    const result = stripe.redirectToCheckout({
-      sessionId: data.id,
-    });
-    if (result.error) {
+    console.log(amountInput.current.value, data);
+    if (data.message === "have not been logged in yet") {
+      alert("Vui lòng đăng nhập để thực hiện chức năng này!");
+    } else {
+      const result = stripe.redirectToCheckout({
+        sessionId: data.id,
+      });
       console.log(result.error);
     }
   };

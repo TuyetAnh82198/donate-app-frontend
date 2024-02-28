@@ -21,6 +21,8 @@ const RootLayout = () => {
   const [email, setEmail] = useState("");
   //state role người dùng
   const [role, setRole] = useState("");
+  //state mật khẩu để biết người dùng có đăng nhập bằng google không
+  const [pass, setPass] = useState("");
 
   const navigate = useNavigate();
   //hàm kiểm tra người dùng đã đăng nhập chưa
@@ -34,9 +36,12 @@ const RootLayout = () => {
         if (data.message === "have not been logged in yet.") {
           setEmail("");
           setRole("");
+          setPass("");
         } else {
           setEmail(data.email);
           setRole(data.role);
+          setPass(data.withPass);
+          // console.log(data);
         }
       })
       .catch((err) => console.log(err));
@@ -118,7 +123,7 @@ const RootLayout = () => {
               <PatchPlus className={styles.icons} />
             </NavLink>
           )}
-          {email !== "" && (
+          {email !== "" && pass === "true" && (
             <NavLink
               to="/change-pass"
               className={`d-flex ${styles.menuItems}`}
@@ -188,7 +193,7 @@ const RootLayout = () => {
               <p className={styles.iconContent}>Thêm đợt từ thiện</p>
             </NavLink>
           )}
-          {email !== "" && (
+          {email !== "" && pass === "true" && (
             <NavLink
               to="/change-pass"
               className={`d-flex ${styles.menuItems}`}

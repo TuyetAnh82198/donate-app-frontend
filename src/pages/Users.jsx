@@ -21,8 +21,10 @@ const Users = () => {
   const [filter, setFilter] = useState("Tất cả vai trò");
   //state từ khóa tìm kiếm
   const [keywords, setKeywords] = useState("");
-  //state mảng checkbox
-  const [isChecked, setIsChecked] = useState([]);
+  // //state mảng checkbox
+  // const [isChecked, setIsChecked] = useState([]);
+  //state đăng nhập
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   //   //state checkbox chọn tất cả
   //   const [checkForAll, setCheckForAll] = useState(false);
@@ -30,6 +32,25 @@ const Users = () => {
   //   const [deleteMany, setDeleteMany] = useState([]);
 
   const navigate = useNavigate();
+  //hàm kiểm tra người dùng đã đăng nhập chưa
+  const fetchIsLoggedIn = useCallback(() => {
+    fetch(`${process.env.REACT_APP_BACKEND}/users/check-login`, {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message === "have not been logged in yet.") {
+          navigate("/login");
+          setIsLoggedIn(false);
+        } else {
+          setIsLoggedIn(true);
+        }
+      })
+      .catch((err) => console.log(err));
+  }, []);
+  useEffect(() => fetchIsLoggedIn(), []);
+
   //hàm lấy danh sách người dùng
   const fetchUsers = useCallback((page) => {
     fetch(`${process.env.REACT_APP_BACKEND}/users/get/${page}`)
@@ -176,81 +197,86 @@ const Users = () => {
 
   return (
     <Container className="col-11 my-4">
-      <div className="my-5" style={{ textAlign: "center" }}>
-        <h4 className="my-2">Tìm kiếm người dùng</h4>
-        <Container
-          className="col-9 col-sm-8 col-md-6 col-lg-4 col-xxl-3 p-2 d-flex justify-content-around rounded-5"
-          style={{ backgroundColor: "white", border: "0.1rem solid #f28076" }}
-        >
-          <input
-            value={keywords}
-            onChange={(e) => setKeywords(e.target.value)}
-            className="border-0"
-            type="text"
-            placeholder="Nhập từ khóa"
-          />
-          <div
-            onClick={() => {
-              if (keywords.trim().length !== 0) {
-                search(keywords);
-              }
-            }}
-            className="rounded-5 px-2 py-1"
-            style={{
-              backgroundColor: "#f28076",
-              color: "white",
-              cursor: "pointer",
-            }}
-          >
-            <span>
-              <Search />
-            </span>
-            Tìm kiếm
+      {isLoggedIn && (
+        <div>
+          <div className="my-5" style={{ textAlign: "center" }}>
+            <h4 className="my-2">Tìm kiếm người dùng</h4>
+            <Container
+              className="col-9 col-sm-8 col-md-6 col-lg-4 col-xxl-3 p-2 d-flex justify-content-around rounded-5"
+              style={{
+                backgroundColor: "white",
+                border: "0.1rem solid #f28076",
+              }}
+            >
+              <input
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+                className="border-0"
+                type="text"
+                placeholder="Nhập từ khóa"
+              />
+              <div
+                onClick={() => {
+                  if (keywords.trim().length !== 0) {
+                    search(keywords);
+                  }
+                }}
+                className="rounded-5 px-2 py-1"
+                style={{
+                  backgroundColor: "#f28076",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+              >
+                <span>
+                  <Search />
+                </span>
+                Tìm kiếm
+              </div>
+            </Container>
           </div>
-        </Container>
-      </div>
-      <div className="my-1 d-flex justify-content-between align-items-center">
-        <div className="col-2 d-flex align-items-center">
-          <Form.Select
-            onChange={(e) => {
-              setFilter(e.target.value);
-              if (e.target.value === "Tất cả vai trò") {
-                setDisplayedUsers(users);
-              } else if (e.target.value === "Client") {
-                setDisplayedUsers(
-                  users.filter((user) => user.role === "client")
-                );
-              } else if (e.target.value === "Admin") {
-                setDisplayedUsers(
-                  users.filter((user) => user.role === "admin")
-                );
-              }
-            }}
-          >
-            <option value={filter}>{filter}</option>
-            {["Tất cả vai trò", "Client", "Admin"]
-              .filter((item) => item !== filter)
-              .sort((a, b) => a - b)
-              .map((item) => (
-                <option key={(Math.random() * 10).toString()} value={item}>
-                  {item}
-                </option>
-              ))}
-          </Form.Select>
-          <div
-            onClick={() => {
-              setDisplayedUsers(users);
-              //   setCheckForAll(false);
-              //   setIsChecked(Array(users.length).fill(false));
-              setKeywords("");
-            }}
-            className="px-2"
-            style={{ cursor: "pointer" }}
-          >
-            <ArrowClockwise />
-          </div>
-        </div>
-        {/* {deleteMany.length > 0 && (
+          <div className="my-1 d-flex justify-content-between align-items-center">
+            <div className="col-2 d-flex align-items-center">
+              <Form.Select
+                onChange={(e) => {
+                  setFilter(e.target.value);
+                  if (e.target.value === "Tất cả vai trò") {
+                    setDisplayedUsers(users);
+                  } else if (e.target.value === "Client") {
+                    setDisplayedUsers(
+                      users.filter((user) => user.role === "client")
+                    );
+                  } else if (e.target.value === "Admin") {
+                    setDisplayedUsers(
+                      users.filter((user) => user.role === "admin")
+                    );
+                  }
+                }}
+              >
+                <option value={filter}>{filter}</option>
+                {["Tất cả vai trò", "Client", "Admin"]
+                  .filter((item) => item !== filter)
+                  .sort((a, b) => a - b)
+                  .map((item) => (
+                    <option key={(Math.random() * 10).toString()} value={item}>
+                      {item}
+                    </option>
+                  ))}
+              </Form.Select>
+              <div
+                onClick={() => {
+                  setDisplayedUsers(users);
+                  //   setCheckForAll(false);
+                  //   setIsChecked(Array(users.length).fill(false));
+                  setKeywords("");
+                }}
+                className="px-2"
+                style={{ cursor: "pointer" }}
+              >
+                <ArrowClockwise />
+              </div>
+            </div>
+            {/* {deleteMany.length > 0 && (
           <Button
             onClick={deleteManyHandler}
             className="border-0"
@@ -259,11 +285,11 @@ const Users = () => {
             Xóa phần tử đã chọn
           </Button>
         )} */}
-      </div>
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            {/* <th>
+          </div>
+          <Table striped bordered hover responsive>
+            <thead>
+              <tr>
+                {/* <th>
               <input
                 onChange={() => {
                   if (checkForAll) {
@@ -285,17 +311,17 @@ const Users = () => {
                 checked={checkForAll}
               />
             </th> */}
-            <th className="col-1">#</th>
-            <th>Email</th>
-            <th className="col-2">Vai trò</th>
-            <th className="col-2">Reset mật khẩu</th>
-            <th className="col-1">Xóa</th>
-          </tr>
-        </thead>
-        <tbody>
-          {displayedUsers.map((user, i) => (
-            <tr key={user._id}>
-              {/* <td>
+                <th className="col-1">#</th>
+                <th>Email</th>
+                <th className="col-2">Vai trò</th>
+                <th className="col-2">Reset mật khẩu</th>
+                <th className="col-1">Xóa</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayedUsers.map((user, i) => (
+                <tr key={user._id}>
+                  {/* <td>
                 <input
                   onClick={() => {
                     setIsChecked((prevState) => {
@@ -322,73 +348,78 @@ const Users = () => {
                   checked={isChecked[i]}
                 />
               </td> */}
-              <td>{i + 1}</td>
-              <td>{user.email}</td>
-              <td>
-                <span
-                  style={{ color: user.role === "admin" ? "red" : "black" }}
-                >
-                  {user.role}{" "}
-                </span>
-                {user.role === "client" && (
-                  <span
-                    onClick={() => updateRoleToAdmin(user._id)}
-                    className="rounded-2 px-1 my-5"
-                    style={{ backgroundColor: "#fbc193", cursor: "pointer" }}
-                  >
-                    Làm admin
-                  </span>
-                )}
-              </td>
+                  <td>{i + 1}</td>
+                  <td>{user.email}</td>
+                  <td>
+                    <span
+                      style={{ color: user.role === "admin" ? "red" : "black" }}
+                    >
+                      {user.role}{" "}
+                    </span>
+                    {user.role === "client" && (
+                      <span
+                        onClick={() => updateRoleToAdmin(user._id)}
+                        className="rounded-2 px-1 my-5"
+                        style={{
+                          backgroundColor: "#fbc193",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Làm admin
+                      </span>
+                    )}
+                  </td>
 
-              <td>
-                <Button
-                  onClick={() => resetPass(user.email)}
-                  className="border-0"
-                  style={{ backgroundColor: "#4eb09b" }}
-                >
-                  Reset
-                </Button>
-              </td>
-              <td>
-                <Button
-                  onClick={() => deleteUser(user._id)}
-                  className="border-0"
-                  style={{ backgroundColor: "red" }}
-                >
-                  Xóa
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td className="p-2" style={{ textAlign: "right" }} colSpan={5}>
-              {`${page} out of ${totalPages} ${
-                totalPages === 1 ? "page" : "pages"
-              }`}{" "}
-              <ChevronLeft
-                onClick={() => {
-                  if (page > 1) {
-                    setPage((prevState) => prevState - 1);
-                  }
-                }}
-                style={{ cursor: "pointer" }}
-              />
-              <span className="mx-2">{page}</span>
-              <ChevronRight
-                onClick={() => {
-                  if (page < totalPages) {
-                    setPage((prevState) => prevState + 1);
-                  }
-                }}
-                style={{ cursor: "pointer" }}
-              />
-            </td>
-          </tr>
-        </tfoot>
-      </Table>
+                  <td>
+                    <Button
+                      onClick={() => resetPass(user.email)}
+                      className="border-0"
+                      style={{ backgroundColor: "#4eb09b" }}
+                    >
+                      Reset
+                    </Button>
+                  </td>
+                  <td>
+                    <Button
+                      onClick={() => deleteUser(user._id)}
+                      className="border-0"
+                      style={{ backgroundColor: "red" }}
+                    >
+                      Xóa
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td className="p-2" style={{ textAlign: "right" }} colSpan={5}>
+                  {`${page} out of ${totalPages} ${
+                    totalPages === 1 ? "page" : "pages"
+                  }`}{" "}
+                  <ChevronLeft
+                    onClick={() => {
+                      if (page > 1) {
+                        setPage((prevState) => prevState - 1);
+                      }
+                    }}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <span className="mx-2">{page}</span>
+                  <ChevronRight
+                    onClick={() => {
+                      if (page < totalPages) {
+                        setPage((prevState) => prevState + 1);
+                      }
+                    }}
+                    style={{ cursor: "pointer" }}
+                  />
+                </td>
+              </tr>
+            </tfoot>
+          </Table>
+        </div>
+      )}
     </Container>
   );
 };

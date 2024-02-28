@@ -1,13 +1,14 @@
 import { Container, Form, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState, useCallback, useEffect } from "react";
-import { useGoogleLogin } from "@react-oauth/google";
-
-import ggLogo from "../imgs/gg_logo.png";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   //state email người dùng để kiểm tra người dùng đã đăng nhập chưa
   const [email, setEmail] = useState("");
+  //state thông tin người dùng đăng nhập bằng gg
+  const [gmail, setGmail] = useState("");
 
   const emailInput = useRef();
   const passInput = useRef();
@@ -38,10 +39,15 @@ const Login = () => {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: emailInput.current.value,
-        pass: passInput.current.value,
-      }),
+      body: JSON.stringify(
+        gmail === ""
+          ? {
+              gmail: null,
+              email: emailInput.current.value,
+              pass: passInput.current.value,
+            }
+          : { gmail }
+      ),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -70,7 +76,7 @@ const Login = () => {
     if (emailInput.current.value.trim().length === 0) {
       alert("Vui lòng nhập email của bạn để đặt lại mật khẩu!");
     } else {
-      fetch(`${process.env.REACT_APP_BACKEND}/users/reset-pass`, {
+      fetch(`${process.env.REACT_APP_BACKEND}/users/forgot-pass`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: emailInput.current.value }),
@@ -78,11 +84,8 @@ const Login = () => {
         .then((response) => response.json())
         .then((data) => {
           if (!data.err) {
-            if (
-              data.message ===
-              "Mật khẩu mới đã được gửi vào email của người dùng!"
-            ) {
-              alert("Mật khẩu mới đã được gửi vào email của người dùng!");
+            if (data.message === "Vui lòng kiểm tra email của bạn!") {
+              alert("Vui lòng kiểm tra email của bạn!");
             } else if (data.message === "Email này chưa đăng ký!") {
               alert("Email này chưa đăng ký!");
             }
@@ -94,43 +97,31 @@ const Login = () => {
     }
   };
 
-  //hàm xử lý việc đăng nhập bằng tài khoản gg
-  const loginByGgAccount = useGoogleLogin({
-    clientId: process.env.REACT_APP_CLIENT_ID,
-    onSuccess: async (codeResponse) => {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND}/users/login-google`,
-        {
-          headers: { tokengoogle: `${codeResponse.access_token}` },
-        }
-      );
-      if (response.status === 200) {
-        navigate("/");
-      } else {
-        navigate("/server-error");
-      }
-    },
-    onError: (error) => {
-      console.log("Login Failed:", error);
-    },
-  });
-
   return (
     <div>
-      {email !== "" && (
+      {email === "" && (
         <div>
           <Container className="col-6 col-md-5 col-lg-4 col-xl-3 my-3">
-            <div className="d-flex">
+            <div>
               <h4>Đăng nhập</h4>
-              <img
-                onClick={() => loginByGgAccount()}
-                className="mx-2"
-                style={{ width: "10%", cursor: "pointer" }}
-                src={ggLogo}
-                alt=""
-              />
+              <GoogleOAuthProvider
+                clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+              >
+                <GoogleLogin
+                  onSuccess={(credentialResponse) => {
+                    const decoded = jwtDecode(credentialResponse.credential);
+                    setGmail(decoded.email);
+                    // console.log(decoded);
+                    submitForm();
+                  }}
+                  onError={() => console.log("Login Failed")}
+                ></GoogleLogin>
+              </GoogleOAuthProvider>
             </div>
-            <Form>
+            {/* <p className="my-2" style={{ textAlign: "center" }}>
+              Hoặc
+            </p> */}
+            <Form style={{ marginTop: "1.5rem" }}>
               <Form.Control
                 className="my-2"
                 type="email"

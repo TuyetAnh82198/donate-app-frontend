@@ -42,6 +42,11 @@ const Add = () => {
   //hàm submit form
   const submitForm = (e) => {
     e.preventDefault();
+    const isAdd = window.confirm("Bạn có chắc muốn thêm đợt quyên góp này?");
+    if (!isAdd) {
+      navigate("/");
+      return;
+    }
     const amountWithoutPunctuation = Number(
       amountInput.current.value.match(/\d+/g)
     );
@@ -52,8 +57,8 @@ const Add = () => {
       amountInput.current.value.trim().length === 0
     ) {
       alert("Các trường không thể để trống");
-    } else if (amountWithoutPunctuation <= 0) {
-      alert("Số tiền phải lớn hơn 0");
+    } else if (amountWithoutPunctuation < 1000000) {
+      alert("Số tiền không thể nhỏ hơn 1.000.000");
     } else if (type === "Chọn hoàn cảnh quyên góp") {
       alert("Vui lòng chọn Hoàn cảnh quyên góp");
     } else if (!imgInput.current.files[0]) {
@@ -68,6 +73,7 @@ const Add = () => {
       formData.append("img", imgInput.current.files[0]);
       fetch(`${process.env.REACT_APP_BACKEND}/donates/add`, {
         method: "POST",
+        credentials: "include",
         body: formData,
       })
         .then((response) => response.json())
@@ -91,6 +97,7 @@ const Add = () => {
     amountInput.current.value = "";
     setDate(new Date());
     setType("Chọn hoàn cảnh quyên góp");
+    imgInput.current.value = "";
   };
 
   return (

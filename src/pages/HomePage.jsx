@@ -1,4 +1,14 @@
-import { Button, Container, Form, Table } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Row,
+  Container,
+  Form,
+  Table,
+  ProgressBar,
+  Pagination,
+} from "react-bootstrap";
 import {
   EnvelopePaperHeartFill,
   Search,
@@ -32,6 +42,20 @@ const HomePage = () => {
   const [checkForAll, setCheckForAll] = useState(false);
   //state mảng chứa nhiều phần tử muốn xóa
   const [deleteMany, setDeleteMany] = useState([]);
+
+  //tạo mảng để phân trang bằng bootstrap
+  let items = [];
+  for (let number = 1; number <= totalPages; number++) {
+    items.push(
+      <Pagination.Item
+        onClick={() => setPage(number)}
+        key={number}
+        active={number === page}
+      >
+        {number}
+      </Pagination.Item>
+    );
+  }
 
   //hàm kiểm tra người dùng đã đăng nhập chưa
   const fetchIsLoggedIn = useCallback(() => {
@@ -111,7 +135,7 @@ const HomePage = () => {
       .catch((err) => console.log(err));
   };
 
-  //hàm xóa nhiều phần tử
+  //hàm xóa nhiều đợt quyên góp
   const deleteManyHandler = () => {
     const isDelete = window.confirm("Bạn có chắc muốn xóa đợt quyên góp này?");
     if (isDelete) {
@@ -135,6 +159,7 @@ const HomePage = () => {
               const newArr = [...donates];
               setDonates(newArr);
               setIsChecked(Array(newArr.length).fill(false));
+              setDeleteMany([]);
             }
           } else {
             navigate("/server-error");
@@ -242,10 +267,93 @@ const HomePage = () => {
           </Button>
         )}
       </div>
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            {role === "admin" && (
+      {role !== "admin" && (
+        <Container className="px-0">
+          <Row>
+            {displayedDonates.map((donate, i) => (
+              <Col className="py-2" lg={4} key={donate._id}>
+                <Card>
+                  <Card.Img
+                    variant="top"
+                    src={`http://localhost:5000/${donate.img}`}
+                  />
+                  <Card.Body>
+                    <Card.Title style={{ overflow: "hidden" }}>
+                      <div
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {donate.title}
+                      </div>
+                    </Card.Title>
+                    <Card.Text style={{ overflow: "hidden" }}>
+                      <div
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {donate.desc}
+                      </div>
+                    </Card.Text>
+                    <div className="d-flex justify-content-between">
+                      <p style={{ color: "gray" }}>
+                        <span
+                          style={{
+                            color: "black",
+                            fontWeight: "bold",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          {donate.currentAmount.toLocaleString("vi-VN")}đ
+                        </span>{" "}
+                        / {donate.amount.toLocaleString("vi-VN")}đ
+                      </p>
+                      <p
+                        className="py-1 px-3 rounded-5"
+                        style={{ color: "#FF4500", backgroundColor: "#fae0c7" }}
+                      >
+                        {differenceInDays(donate.endDate, new Date()) > 0
+                          ? `Còn ${
+                              differenceInDays(donate.endDate, new Date()) + 1
+                            } ngày`
+                          : "Đã hết thời hạn"}
+                      </p>
+                    </div>
+                    <ProgressBar
+                      now={(
+                        (donate.currentAmount / donate.amount) *
+                        100
+                      ).toFixed(1)}
+                      style={{ height: "0.6rem" }}
+                    />
+                    <div style={{ marginTop: "1rem", textAlign: "right" }}>
+                      <Link to={`/detail/${donate._id}`}>
+                        <Button>Xem thêm</Button>
+                      </Link>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+          <div className="d-flex justify-content-end">
+            <Pagination>{items}</Pagination>
+          </div>
+        </Container>
+      )}
+      {role === "admin" && (
+        <Table striped bordered hover responsive>
+          <thead>
+            <tr>
               <th>
                 <input
                   onChange={() => {
@@ -268,20 +376,18 @@ const HomePage = () => {
                   checked={checkForAll}
                 />
               </th>
-            )}
-            <th className="col-1">#</th>
-            <th>Tiêu đề</th>
-            <th>Tiến độ</th>
-            <th className="col-2">Số ngày còn lại</th>
-            <th className="col-1">Chi tiết</th>
-            {role === "admin" && <th className="col-2">Cập nhật</th>}
-            {role === "admin" && <th className="col-1">Xóa</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {displayedDonates.map((donate, i) => (
-            <tr key={donate._id}>
-              {role === "admin" && (
+              <th className="col-1">#</th>
+              <th>Tiêu đề</th>
+              <th>Tiến độ</th>
+              <th className="col-2">Số ngày còn lại</th>
+              <th className="col-1">Chi tiết</th>
+              <th className="col-2">Cập nhật</th>
+              <th className="col-1">Xóa</th>
+            </tr>
+          </thead>
+          <tbody>
+            {displayedDonates.map((donate, i) => (
+              <tr key={donate._id}>
                 <td>
                   <input
                     onClick={() => {
@@ -309,22 +415,21 @@ const HomePage = () => {
                     checked={isChecked[i]}
                   />
                 </td>
-              )}
-              <td>{i + 1}</td>
-              <td>{donate.title}</td>
-              <td>
-                {donate.currentAmount.toLocaleString("vi-VN")}/
-                {donate.amount.toLocaleString("vi-VN")}
-              </td>
-              <td>
-                {differenceInDays(donate.endDate, new Date()) + 1 > 0
-                  ? differenceInDays(donate.endDate, new Date()) + 1
-                  : "Đã hết thời hạn"}
-              </td>
-              <td>
-                <Link to={`/detail/${donate._id}`}>Xem thêm</Link>
-              </td>
-              {role === "admin" && (
+                <td>{i + 1}</td>
+                <td>{donate.title}</td>
+                <td>
+                  {donate.currentAmount.toLocaleString("vi-VN")}/
+                  {donate.amount.toLocaleString("vi-VN")}
+                </td>
+                <td>
+                  {differenceInDays(donate.endDate, new Date()) + 1 > 0
+                    ? differenceInDays(donate.endDate, new Date()) + 1
+                    : "Đã hết thời hạn"}
+                </td>
+                <td>
+                  <Link to={`/detail/${donate._id}`}>Xem thêm</Link>
+                </td>
+
                 <td>
                   <Button
                     onClick={() => navigate(`/update/${donate._id}`)}
@@ -334,8 +439,7 @@ const HomePage = () => {
                     Cập nhật
                   </Button>
                 </td>
-              )}
-              {role === "admin" && (
+
                 <td>
                   <Button
                     onClick={() => deleteDonate(donate._id)}
@@ -345,41 +449,37 @@ const HomePage = () => {
                     Xóa
                   </Button>
                 </td>
-              )}
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td className="p-2" style={{ textAlign: "right" }} colSpan={8}>
+                {`${page} out of ${totalPages} ${
+                  totalPages === 1 ? "page" : "pages"
+                }`}{" "}
+                <ChevronLeft
+                  onClick={() => {
+                    if (page > 1) {
+                      setPage((prevState) => prevState - 1);
+                    }
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
+                <span className="mx-2">{page}</span>
+                <ChevronRight
+                  onClick={() => {
+                    if (page < totalPages) {
+                      setPage((prevState) => prevState + 1);
+                    }
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
+              </td>
             </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td
-              className="p-2"
-              style={{ textAlign: "right" }}
-              colSpan={role === "admin" ? 8 : 5}
-            >
-              {`${page} out of ${totalPages} ${
-                totalPages === 1 ? "page" : "pages"
-              }`}{" "}
-              <ChevronLeft
-                onClick={() => {
-                  if (page > 1) {
-                    setPage((prevState) => prevState - 1);
-                  }
-                }}
-                style={{ cursor: "pointer" }}
-              />
-              <span className="mx-2">{page}</span>
-              <ChevronRight
-                onClick={() => {
-                  if (page < totalPages) {
-                    setPage((prevState) => prevState + 1);
-                  }
-                }}
-                style={{ cursor: "pointer" }}
-              />
-            </td>
-          </tr>
-        </tfoot>
-      </Table>
+          </tfoot>
+        </Table>
+      )}
     </Container>
   );
 };
