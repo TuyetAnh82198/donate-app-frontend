@@ -73,7 +73,7 @@ const Users = () => {
   const deleteUser = (id) => {
     const isDelete = window.confirm("Bạn có chắc muốn xóa người dùng này?");
     if (isDelete) {
-      fetch(`http://localhost:5000/users/delete/${id}`)
+      fetch(`${process.env.REACT_APP_BACKEND}/users/delete/${id}`)
         .then((response) => response.json())
         .then((data) => {
           if (!data.err) {
@@ -128,7 +128,7 @@ const Users = () => {
 
   //hàm xử lý việc tìm kiếm người dùng theo từ khóa
   const search = (keywords) => {
-    fetch("http://localhost:5000/users/search", {
+    fetch(`${process.env.REACT_APP_BACKEND}/users/search`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ keywords: keywords }),
@@ -147,7 +147,7 @@ const Users = () => {
   //   const deleteManyHandler = () => {
   //     const isDelete = window.confirm("Bạn có chắc muốn xóa đợt quyên góp này?");
   //     if (isDelete) {
-  //       fetch("http://localhost:5000/donates/delete/", {
+  //       fetch(`${process.env.REACT_APP_BACKEND}/donates/delete/`, {
   //         method: "POST",
   //         headers: { "Content-Type": "application/json" },
   //         body: JSON.stringify({

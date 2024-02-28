@@ -99,7 +99,7 @@ const HomePage = () => {
   const deleteDonate = (id) => {
     const isDelete = window.confirm("Bạn có chắc muốn xóa đợt quyên góp này?");
     if (isDelete) {
-      fetch(`http://localhost:5000/donates/delete/${id}`)
+      fetch(`${process.env.REACT_APP_BACKEND}/donates/delete/${id}`)
         .then((response) => response.json())
         .then((data) => {
           if (!data.err) {
@@ -120,7 +120,7 @@ const HomePage = () => {
 
   //hàm xử lý việc tìm kiếm đợt quyên góp theo từ khóa
   const search = (keywords) => {
-    fetch("http://localhost:5000/donates/search", {
+    fetch(`${process.env.REACT_APP_BACKEND}/donates/search`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ keywords: keywords }),
@@ -139,7 +139,7 @@ const HomePage = () => {
   const deleteManyHandler = () => {
     const isDelete = window.confirm("Bạn có chắc muốn xóa đợt quyên góp này?");
     if (isDelete) {
-      fetch("http://localhost:5000/donates/delete/", {
+      fetch(`${process.env.REACT_APP_BACKEND}/donates/delete/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -275,7 +275,7 @@ const HomePage = () => {
                 <Card>
                   <Card.Img
                     variant="top"
-                    src={`http://localhost:5000/${donate.img}`}
+                    src={`${process.env.REACT_APP_BACKEND}/${donate.img}`}
                   />
                   <Card.Body>
                     <Card.Title style={{ overflow: "hidden" }}>
