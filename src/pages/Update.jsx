@@ -39,7 +39,7 @@ const Update = () => {
               ...data.result,
               amount: data.result.amount.toString(),
             });
-            setImage(`http://localhost:5000/${data.result.img}`);
+            setImage(`${process.env.REACT_APP_BACKEND}/${data.result.img}`);
           }
         } else {
           navigate("/server-error");
