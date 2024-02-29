@@ -111,7 +111,7 @@ const Login = () => {
                 <GoogleLogin
                   onSuccess={async (credentialResponse) => {
                     const decoded = jwtDecode(credentialResponse.credential);
-                    setGmail(decoded.email);
+                    setGmail(e,decoded.email);
                     // console.log(decoded);
                     submitForm(decoded.email);
                   }}
