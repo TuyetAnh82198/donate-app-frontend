@@ -34,8 +34,7 @@ const Login = () => {
   useEffect(() => fetchIsLoggedIn(), []);
 
   //hàm xử lý việc đăng nhập
-  const submitForm = (e, mail) => {
-    e.preventDefault();
+  const submitForm = (mail) => {
     fetch(`${process.env.REACT_APP_BACKEND}/users/login`, {
       method: "POST",
       credentials: "include",
@@ -113,7 +112,7 @@ const Login = () => {
                     const decoded = jwtDecode(credentialResponse.credential);
                     setGmail(decoded.email);
                     // console.log(decoded);
-                    submitForm(e,decoded.email);
+                    submitForm(decoded.email);
                   }}
                   onError={() => console.log("Login Failed")}
                 ></GoogleLogin>
@@ -123,7 +122,10 @@ const Login = () => {
               Hoặc
             </p> */}
             <Form
-              onSubmit={() => submitForm(e, "")}
+              onSubmit={(e) => {
+                e.preventDefault();
+                submitForm("");
+              }}
               style={{ marginTop: "1.5rem" }}
             >
               <Form.Control
