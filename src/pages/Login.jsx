@@ -111,9 +111,9 @@ const Login = () => {
                 <GoogleLogin
                   onSuccess={async (credentialResponse) => {
                     const decoded = jwtDecode(credentialResponse.credential);
-                    setGmail(e,decoded.email);
+                    setGmail(decoded.email);
                     // console.log(decoded);
-                    submitForm(decoded.email);
+                    submitForm(e,decoded.email);
                   }}
                   onError={() => console.log("Login Failed")}
                 ></GoogleLogin>
