@@ -29,7 +29,8 @@ const SignUp = () => {
   useEffect(() => fetchIsLoggedIn(), []);
 
   //hàm xử lý việc đăng ký
-  const submitForm = () => {
+  const submitForm = (e) => {
+    e.preventDefault();
     fetch(`${process.env.REACT_APP_BACKEND}/users/sign-up`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -70,7 +71,7 @@ const SignUp = () => {
         <div>
           <Container className="col-6 col-md-5 col-lg-4 col-xl-3 my-3">
             <h4>Đăng ký</h4>
-            <Form>
+            <Form onSubmit={submitForm}>
               <Form.Control
                 className="my-2"
                 type="email"
@@ -84,7 +85,7 @@ const SignUp = () => {
             ref={passInput}
           /> */}
               <Button
-                onClick={submitForm}
+                type="submit"
                 className="border-0"
                 style={{ backgroundColor: "#f28076" }}
               >
