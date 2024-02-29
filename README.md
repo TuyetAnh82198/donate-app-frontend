@@ -1,7 +1,7 @@
 **I. Project introduction**
 The website is used for charitable donations.
-Frontend: React, Bootstrap
-Backend: NodeJS, Express
+Frontend: React, Bootstrap, link: https://github.com/TuyetAnh82198/donate-app-frontend/tree/ver1
+Backend: NodeJS, Express, link: https://github.com/TuyetAnh82198/donate-app-backend
 Database: MongoDB
 Performance optimization: useCallback, Compression
 Language: Vietnamese
