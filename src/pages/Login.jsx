@@ -113,7 +113,7 @@ const Login = () => {
                     const decoded = jwtDecode(credentialResponse.credential);
                     setGmail(decoded.email);
                     // console.log(decoded);
-                    submitForm(decoded.email);
+                    submitForm(e, decoded.email);
                   }}
                   onError={() => console.log("Login Failed")}
                 ></GoogleLogin>
