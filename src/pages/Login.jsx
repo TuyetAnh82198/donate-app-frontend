@@ -34,7 +34,8 @@ const Login = () => {
   useEffect(() => fetchIsLoggedIn(), []);
 
   //hàm xử lý việc đăng nhập
-  const submitForm = (mail) => {
+  const submitForm = (e, mail) => {
+    e.preventDefault();
     fetch(`${process.env.REACT_APP_BACKEND}/users/login`, {
       method: "POST",
       credentials: "include",
@@ -121,7 +122,10 @@ const Login = () => {
             {/* <p className="my-2" style={{ textAlign: "center" }}>
               Hoặc
             </p> */}
-            <Form style={{ marginTop: "1.5rem" }}>
+            <Form
+              onSubmit={() => submitForm(e, "")}
+              style={{ marginTop: "1.5rem" }}
+            >
               <Form.Control
                 className="my-2"
                 type="email"
@@ -136,7 +140,7 @@ const Login = () => {
               />
               <div>
                 <Button
-                  onClick={() => submitForm("")}
+                  type="submit"
                   className="border-0"
                   style={{ backgroundColor: "#f28076" }}
                 >
