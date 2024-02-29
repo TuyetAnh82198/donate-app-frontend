@@ -34,19 +34,19 @@ const Login = () => {
   useEffect(() => fetchIsLoggedIn(), []);
 
   //hàm xử lý việc đăng nhập
-  const submitForm = () => {
+  const submitForm = (mail) => {
     fetch(`${process.env.REACT_APP_BACKEND}/users/login`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(
-        gmail === ""
+        mail === ""
           ? {
               gmail: null,
               email: emailInput.current.value,
               pass: passInput.current.value,
             }
-          : { gmail }
+          : { gmail: mail }
       ),
     })
       .then((response) => response.json())
@@ -108,11 +108,11 @@ const Login = () => {
                 clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
               >
                 <GoogleLogin
-                  onSuccess={(credentialResponse) => {
+                  onSuccess={async (credentialResponse) => {
                     const decoded = jwtDecode(credentialResponse.credential);
                     setGmail(decoded.email);
                     // console.log(decoded);
-                    submitForm();
+                    submitForm(decoded.email);
                   }}
                   onError={() => console.log("Login Failed")}
                 ></GoogleLogin>
