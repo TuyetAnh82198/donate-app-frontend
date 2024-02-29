@@ -136,7 +136,7 @@ const Login = () => {
               />
               <div>
                 <Button
-                  onClick={submitForm}
+                  onClick={() => submitForm("")}
                   className="border-0"
                   style={{ backgroundColor: "#f28076" }}
                 >
